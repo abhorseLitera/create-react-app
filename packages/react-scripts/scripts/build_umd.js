@@ -19,13 +19,14 @@ const path = require('path');
 const chalk = require('react-dev-utils/chalk');
 const fs = require('fs-extra');
 const webpack = require('webpack');
-const configFactory = require('../config/webpack.config');
+const configFactory = require('../config/webpack.config.umd');
 const paths = require('../config/paths');
 const checkRequiredFiles = require('react-dev-utils/checkRequiredFiles');
 const formatWebpackMessages = require('react-dev-utils/formatWebpackMessages');
 const printHostingInstructions = require('react-dev-utils/printHostingInstructions');
 const FileSizeReporter = require('react-dev-utils/FileSizeReporter');
 const printBuildError = require('react-dev-utils/printBuildError');
+const appPackageJson = require(paths.appPackageJson);
 
 const measureFileSizesBeforeBuild =
   FileSizeReporter.measureFileSizesBeforeBuild;
@@ -39,7 +40,7 @@ const WARN_AFTER_CHUNK_GZIP_SIZE = 1024 * 1024;
 const isInteractive = process.stdout.isTTY;
 
 // Warn and crash if required files are missing
-if (!checkRequiredFiles([paths.appHtml, paths.appIndexJs])) {
+if (!checkRequiredFiles([paths.appHtml, appPackageJson['react-scripts'].umdBuildEntry])) {
   process.exit(1);
 }
 
@@ -53,12 +54,12 @@ checkBrowsers(paths.appPath, isInteractive)
   .then(() => {
     // First, read the current file sizes in build directory.
     // This lets us display how much they changed later.
-    return measureFileSizesBeforeBuild(path.join(paths.appBuild, 'app'));
+    return measureFileSizesBeforeBuild(path.join(paths.appBuild, 'umd'));
   })
   .then(previousFileSizes => {
     // Remove all content but keep the directory so that
     // if you're in it, you don't end up in Trash
-    fs.emptyDirSync(paths.appBuild);
+    fs.emptyDirSync(paths.umdBuildDir);
     // Merge with the public folder
     copyPublicFolder();
     // Start the webpack build
@@ -87,7 +88,7 @@ checkBrowsers(paths.appPath, isInteractive)
       printFileSizesAfterBuild(
         stats,
         previousFileSizes,
-        path.join(paths.appBuild, 'app'),
+        path.join(paths.appBuild, 'umd'),
         WARN_AFTER_BUNDLE_GZIP_SIZE,
         WARN_AFTER_CHUNK_GZIP_SIZE
       );
@@ -96,7 +97,7 @@ checkBrowsers(paths.appPath, isInteractive)
       const appPackage = require(paths.appPackageJson);
       const publicUrl = paths.publicUrlOrPath;
       const publicPath = config.output.publicPath;
-      const buildFolder = path.relative(process.cwd(), paths.appBuildDir);
+      const buildFolder = path.relative(process.cwd(), path.join(paths.appBuild, 'umd'));
       printHostingInstructions(
         appPackage,
         publicUrl,
@@ -123,7 +124,7 @@ checkBrowsers(paths.appPath, isInteractive)
   )
   .catch(err => {
     if (err && err.message) {
-      console.log(err.message);
+      console.log('UMD ERROR:',err.message);
     }
     process.exit(1);
   });
@@ -142,7 +143,7 @@ function build(previousFileSizes) {
     console.log();
   }
 
-  console.log('Creating an optimized app production build...');
+  console.log('Creating an optimized umd production build...');
 
   const compiler = webpack(config);
   return new Promise((resolve, reject) => {
@@ -204,7 +205,7 @@ function build(previousFileSizes) {
 }
 
 function copyPublicFolder() {
-  fs.copySync(paths.appPublic, paths.appBuild, {
+  fs.copySync(paths.appPublic, paths.umdBuildDir, {
     dereference: true,
     filter: file => !(file === path.join(paths.appPublic, 'favicon.png')) && file !== paths.appHtml,
   });
