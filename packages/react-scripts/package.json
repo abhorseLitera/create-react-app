@@ -1,6 +1,6 @@
 {
   "name": "bhorse-react-scripts",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Customizing Configuration and scripts for Create React App.",
   "repository": {
     "type": "git",
@@ -40,6 +40,7 @@
     "babel-preset-react-app": "^9.1.2",
     "camelcase": "^5.3.1",
     "case-sensitive-paths-webpack-plugin": "2.3.0",
+    "copy-webpack-plugin": "^5.1.1",
     "css-loader": "3.5.3",
     "dotenv": "8.2.0",
     "dotenv-expand": "5.1.0",
