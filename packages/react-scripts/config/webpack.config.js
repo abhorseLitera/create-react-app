@@ -27,6 +27,7 @@ const postcssNormalize = require('postcss-normalize');
 const getCopyWebpackPluginInstance = require('./copyLicenseFiles');
 
 const appPackageJson = require(paths.appPackageJson);
+const overrideOptions = appPackageJson['react-scripts'];
 
 // Source maps are resource heavy and can cause out of memory issue for large source files.
 const shouldUseSourceMap = false;
@@ -142,7 +143,7 @@ module.exports = function(webpackEnv) {
       isEnvDevelopment &&
         require.resolve('react-dev-utils/webpackHotDevClient'),
       // Finally, this is your app's code:
-      paths.appIndexJs,
+      overrideOptions.appBuildEntry? overrideOptions.appBuildEntry : paths.appIndexJs,
       // We include the app code last so that if there is a runtime error during
       // initialization, it doesn't blow up the WebpackDevServer client, and
       // changing JS code would still trigger a refresh.
@@ -155,7 +156,7 @@ module.exports = function(webpackEnv) {
       // There will be one main bundle, and one file per asynchronous chunk.
       // In development, it does not produce real files.
       filename: isEnvProduction
-      ? 'deltaview.js'
+      ? (overrideOptions.appBuildName ? overrideOptions.appBuildName : '[name].js')
         : isEnvDevelopment && 'static/js/bundle.js',
       // TODO: remove this when upgrading to webpack 5
       futureEmitAssets: true,

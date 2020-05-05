@@ -1,16 +1,14 @@
 const CopyPlugin = require('copy-webpack-plugin');
+const paths = require('./paths');
+const appPackageJson = require(paths.appPackageJson);
 
 function getCopyWebpackPluginInstance(outputDir) {
   return new CopyPlugin(getLicenseFiles(outputDir))
 }
 
 function getLicenseFiles(outputDir){
-  const filenames = [
-    'EULA.pdf',
-    'Acknowledgments.txt',
-    'Third-Party License Agreements.txt',
-    'InstalledPackages.json'
-  ];
+  const filenames = appPackageJson['react-scripts'].includeInBuild ? 
+                        appPackageJson['react-scripts'].includeInBuild : [];
 
   return filenames.map((file) => {
     return { from: file, to: outputDir }
